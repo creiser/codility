@@ -1,6 +1,7 @@
 import itertools
 from sys import maxsize, setrecursionlimit
 import random
+from time import perf_counter
 
 def slow(A):
     res = maxsize
@@ -78,6 +79,10 @@ def fast2(A):
     return step2(total, count, dp)
 
 def fast3(A):
+    if len(A) == 0:
+        return 0
+    if len(A) == 1:
+        return abs(A[0])
     A = [abs(x) for x in A]
     count = [0] * (max(A) + 1)
     total = 0
@@ -113,21 +118,23 @@ def test():
     setrecursionlimit(30000)
 
     for t in range(10**2):
-        val = [random.randint(-100, 100) for i in range(5)]
-        print(val)
-        #print(fast3(val))
-        s_res, f_res, f2_res, f3_res = slow(val), fast(val), fast2(val), fast3(val)
-        print('slow: ' + str(s_res))
-        print('fast: ' + str(f_res))
-        print('fast2: ' + str(f2_res))
-        print('fast3: ' + str(f3_res))
-        if s_res != f_res or s_res != f2_res or s_res != f3_res:
-            print('solution false')
+        val = [random.randint(-100, 100) for i in range(7)]
+        print()
+        #print(val)
+        res = -1
+        fail = False
+        for algo in [slow, fast3]:
+            start = perf_counter()
+            nres = algo(val)
+            if nres != res and res != -1:
+                print('fail! ' + str(res) + ' ' + str(nres))
+                fail = True
+                break
+            res = nres
+            end = perf_counter()
+            print(algo.__name__ + ': ' + str(end - start) + ' ' + str(res))
+        if fail:
             break
-
-
-    #print(slow([1, 5, 2, -2]))
-    #print(slow([10000, 100, 100, 20]))
 
 if __name__ == '__main__':
     test()
