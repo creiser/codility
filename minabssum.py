@@ -83,31 +83,33 @@ def fast3(A):
         return 0
     if len(A) == 1:
         return abs(A[0])
-    A = [abs(x) for x in A]
-    count = [0] * (max(A) + 1)
+    A = [abs(x) for x in A]  # sign doesn't matter for this problem
+    count = [0] * (max(A) + 1)  # compress by counting, allows space efficient 'recursive' calls
     total = 0
     for x in A:
         total += x
         count[x] += 1
-    dp = [False] * (total + 1)
+    dp = [False] * (total + 1)  # save already visited absolute sums
     res = maxsize
 
-    stack = [(total, -1)]
+    # depth first search, always subtract the highest available numbers first
+    # use stack to emulate recursive function calls
+    stack = [(total, -1)]  # start with no numbers subtracted
     while stack:
         current_sum, to_remove = stack.pop()
-        if current_sum != -1: # code for finish of depth traversal
+        if current_sum != -1:  # magic number that makes to_remove available again
             if to_remove != -1:
                 count[to_remove] -= 1
-            for i in range(len(count)):
+            for i in range(len(count)):  # this order is actually reversed by the stack, so it is highest to lowest
                 if count[i] >= 1:
                     new = current_sum - 2 * i
-                    if new >= 0 and dp[new] is False:
+                    if new >= 0 and dp[new] is False:  # only positive sums are considered, that weren't visited yet
                         dp[new] = True
                         res = min(res, new)
                         if res == 0:
                             return res
-                        stack.append((-1, i))
-                        stack.append((new, i))
+                        stack.append((-1, i))  # -1 = magic number that makes 'i' available again
+                        stack.append((new, i))  # in the 'call' below 'i' won't be available
         elif to_remove != -1:
             count[to_remove] += 1
     return res
